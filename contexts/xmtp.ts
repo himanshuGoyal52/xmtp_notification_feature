@@ -16,6 +16,7 @@ export type XmtpContextType = {
   loadingConversations: boolean
   getMessages: (peerAddress: string) => Message[]
   dispatchMessages?: Dispatch<MessageStoreEvent>
+  dispatchMessagesWithNoti?: Dispatch<MessageStoreEvent>
   connect: (wallet: Signer) => void
   disconnect: () => void
 }

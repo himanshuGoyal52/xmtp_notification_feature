@@ -11,11 +11,26 @@ const buildMessageDeduper = (state: Message[]): MessageDeduper => {
   return (msg: Message) => existingMessageKeys.indexOf(msg.id) === -1
 }
 
+function showNotification(msg: string, id: string) {
+  console.log(msg, id)
+  navigator.serviceWorker.controller?.postMessage({ msg: msg, id: id })
+}
+
 const useMessageStore = () => {
   const [messageStore, dispatchMessages] = useReducer(
     (state: MessageStore, { peerAddress, messages }: MessageStoreEvent) => {
       const existing = state[peerAddress] || []
       const newMessages = messages.filter(buildMessageDeduper(existing))
+
+      const newMsgLen: number = newMessages.length
+      if (
+        newMsgLen > 0 &&
+        Object.keys(state).length > 0 &&
+        location.href.includes(peerAddress)
+      ) {
+        showNotification(newMessages[0].content, newMessages[0].id)
+      }
+
       if (!newMessages.length) {
         return state
       }
