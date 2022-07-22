@@ -75,6 +75,8 @@ const useConversation = (
 
   const handleSend = useCallback(
     async (message: string) => {
+      console.log('conversation : ', conversation)
+      console.log('message from useConversation.ts', message)
       if (!conversation) return
       await conversation.send(message)
     },
