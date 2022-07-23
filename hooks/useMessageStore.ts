@@ -1,6 +1,7 @@
 import { Message } from '@xmtp/xmtp-js'
 import { useCallback, useReducer } from 'react'
 import { MessageStoreEvent } from '../contexts/xmtp'
+import useXmtp from '../hooks/useXmtp'
 
 type MessageDeduper = (message: Message) => boolean
 type MessageStore = { [address: string]: Message[] }
@@ -17,6 +18,8 @@ const buildMessageDeduper = (state: Message[]): MessageDeduper => {
 }*/
 
 const useMessageStore = () => {
+  const { walletAddress } = useXmtp()
+
   const [messageStore, dispatchMessages] = useReducer(
     (state: MessageStore, { peerAddress, messages }: MessageStoreEvent) => {
       const existing = state[peerAddress] || []
