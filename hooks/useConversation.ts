@@ -4,11 +4,16 @@ import { XmtpContext } from '../contexts/xmtp'
 
 type OnMessageCallback = () => void
 
+function showNotification(msg: string, id: string) {
+  console.log(msg, id)
+  navigator.serviceWorker.controller?.postMessage({ msg: msg, id: id })
+}
+
 const useConversation = (
   peerAddress: string,
   onMessageCallback?: OnMessageCallback
 ) => {
-  const { client, getMessages, dispatchMessages } = useContext(XmtpContext)
+  const { walletAddress,client, getMessages, dispatchMessages } = useContext(XmtpContext)
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [stream, setStream] = useState<Stream<Message>>()
   const [loading, setLoading] = useState<boolean>(false)
@@ -65,14 +70,30 @@ const useConversation = (
           })
         }
 
+        // Notify if sender is different from recipient
+        if (
+          location.href.includes(peerAddress) &&
+          walletAddress !== msg.senderAddress
+        ) {
+          showNotification(msg.content, msg.id)
+          console.log(walletAddress)
+          console.log(client)
+        }
+
         if (onMessageCallback) {
           onMessageCallback()
         }
       }
     }
     streamMessages()
-  }, [conversation, peerAddress, dispatchMessages, onMessageCallback])
-
+  }, [
+    conversation,
+    peerAddress,
+    dispatchMessages,
+    onMessageCallback,
+    walletAddress,
+    client,
+  ])
   const handleSend = useCallback(
     async (message: string) => {
       if (!conversation) return
